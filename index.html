@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Ventas y Facturación 🇻🇪</title>
+    <title>Control de Ventas y Créditos 🇻🇪</title>
     
     <!-- Configuración PWA / Acceso Directo Móvil -->
     <meta name="theme-color" content="#16a34a">
@@ -20,14 +20,14 @@
 </head>
 <body class="bg-gray-100 min-h-screen text-gray-800 p-4 sm:p-6 pb-24 relative">
 
-    <div class="max-w-4xl mx-auto space-y-6">
+    <div class="max-w-5xl mx-auto space-y-6">
         
         <!-- Banner para instalar PWA -->
         <div id="install-banner" class="hidden bg-green-50 border border-green-200 p-3 rounded-xl flex items-center justify-between shadow-sm">
             <div class="flex items-center space-x-3">
                 <span class="text-2xl">📱</span>
                 <div>
-                    <h4 class="text-sm font-bold text-green-900">Instalar App de Facturación</h4>
+                    <h4 class="text-sm font-bold text-green-900">Instalar App de Ventas</h4>
                     <p class="text-xs text-green-700">Agrégala a tu pantalla de inicio para registrar ventas rápido.</p>
                 </div>
             </div>
@@ -39,10 +39,10 @@
         <!-- Encabezado -->
         <header class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
             <div>
-                <h1 class="text-xl font-bold text-gray-900">Módulo de Ventas Rápidas 🧾</h1>
+                <h1 class="text-xl font-bold text-gray-900">Módulo de Ventas y Créditos 🧾</h1>
                 <p class="text-xs text-gray-500" id="current-date"></p>
             </div>
-            <button onclick="clearSalesData()" class="text-xs text-red-500 hover:underline">Reiniciar Ventas</button>
+            <button onclick="clearSalesData()" class="text-xs text-red-500 hover:underline">Reiniciar Todo</button>
         </header>
 
         <!-- Configuración de Tasa del Día -->
@@ -52,33 +52,41 @@
                 class="w-32 border rounded-lg p-2 text-sm text-center focus:ring-2 focus:ring-green-500 outline-none font-bold bg-gray-50">
         </section>
 
-        <!-- Resumen de Ventas del Día -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="bg-green-600 text-white p-5 rounded-xl shadow-md space-y-2">
-                <span class="text-xs uppercase tracking-wider opacity-80">Total Ventas en Bolívares (Hoy / Acumulado)</span>
-                <div class="text-3xl font-extrabold" id="sales-total-ves">0.00 Bs.</div>
+        <!-- Resumen General -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-green-600 text-white p-5 rounded-xl shadow-md space-y-1">
+                <span class="text-xs uppercase tracking-wider opacity-80">Total Facturado (Bs.)</span>
+                <div class="text-2xl font-extrabold" id="sales-total-ves">0.00 Bs.</div>
             </div>
-            <div class="bg-emerald-700 text-white p-5 rounded-xl shadow-md space-y-2">
-                <span class="text-xs uppercase tracking-wider opacity-80">Equivalente Total en Dólares ($)</span>
-                <div class="text-3xl font-extrabold" id="sales-total-usd">0.00 $</div>
+            <div class="bg-emerald-700 text-white p-5 rounded-xl shadow-md space-y-1">
+                <span class="text-xs uppercase tracking-wider opacity-80">Equivalente Total ($)</span>
+                <div class="text-2xl font-extrabold" id="sales-total-usd">0.00 $</div>
+            </div>
+            <div class="bg-amber-600 text-white p-5 rounded-xl shadow-md space-y-1">
+                <span class="text-xs uppercase tracking-wider opacity-80">Total Por Cobrar (Deudas)</span>
+                <div class="text-2xl font-extrabold" id="total-pending-debt">0.00 $</div>
             </div>
         </section>
 
         <!-- Formulario de Registro de Venta -->
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-3">
-            <h2 class="text-md font-semibold text-gray-700">Registrar Nueva Venta</h2>
-            <form id="sale-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3" onsubmit="addSale(event)">
+            <h2 class="text-md font-semibold text-gray-700">Registrar Nueva Venta / Factura</h2>
+            <form id="sale-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3" onsubmit="addSale(event)">
                 <input type="text" id="client-name" placeholder="Nombre del Cliente" required
                     class="border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-500">
                 <input type="tel" id="client-phone" placeholder="Nro. de Teléfono" required
                     class="border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-500">
                 <input type="text" id="sale-desc" placeholder="Descripción / Producto" required
                     class="border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-500">
+                <select id="sale-type" class="border rounded-lg p-2 text-sm bg-gray-50 outline-none font-medium">
+                    <option value="contado">Pago de Contado</option>
+                    <option value="credito">Venta a Crédito</option>
+                </select>
                 <select id="sale-currency" class="border rounded-lg p-2 text-sm bg-gray-50 outline-none font-medium">
                     <option value="USD">Dólares ($)</option>
                     <option value="VES">Bolívares (Bs)</option>
                 </select>
-                <input type="number" id="sale-amount" step="0.01" placeholder="Monto" required
+                <input type="number" id="sale-amount" step="0.01" placeholder="Monto Total" required
                     class="border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-500">
                 <button type="submit" 
                     class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm p-2 transition-colors">
@@ -87,31 +95,63 @@
             </form>
         </section>
 
-        <!-- Historial de Ventas y Búsqueda -->
+        <!-- Historial de Ventas y Control de Deudas -->
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <h2 class="text-md font-semibold text-gray-700">Historial de Ventas Registradas</h2>
-                <input type="text" id="search-sale" placeholder="🔍 Buscar por cliente o teléfono..." oninput="renderSales()"
-                    class="border rounded-lg p-2 text-xs w-full sm:w-64 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50">
+                <h2 class="text-md font-semibold text-gray-700">Historial de Ventas y Estado de Cuentas</h2>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <select id="filter-status" onchange="renderSales()" class="border rounded-lg p-2 text-xs bg-gray-50 outline-none font-medium text-gray-700">
+                        <option value="todos">-- Todos los Estados --</option>
+                        <option value="pendiente">Con Deuda (Pendientes)</option>
+                        <option value="pagado">Pagados / Al Día</option>
+                    </select>
+                    <input type="text" id="search-sale" placeholder="🔍 Buscar cliente o teléfono..." oninput="renderSales()"
+                        class="border rounded-lg p-2 text-xs w-full sm:w-56 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50">
+                </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase text-xs">
                         <tr>
-                            <th class="p-3">Fecha / Hora</th>
-                            <th class="p-3">Cliente</th>
-                            <th class="p-3">Teléfono</th>
+                            <th class="p-3">Fecha</th>
+                            <th class="p-3">Cliente / Teléfono</th>
                             <th class="p-3">Detalle</th>
-                            <th class="p-3">Monto Original</th>
-                            <th class="p-3">Equivalente (Bs)</th>
-                            <th class="p-3 text-center">Acción</th>
+                            <th class="p-3">Total Venta</th>
+                            <th class="p-3">Abonado</th>
+                            <th class="p-3">Resta por Pagar</th>
+                            <th class="p-3 text-center">Estado 📌</th>
+                            <th class="p-3 text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="sales-history" class="divide-y"></tbody>
                 </table>
             </div>
         </section>
+    </div>
+
+    <!-- Modal para Registrar Abono / Pago Parcial -->
+    <div id="modal-payment" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-md font-bold text-gray-900">Registrar Abono o Pago</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-700 font-bold text-lg">✕</button>
+            </div>
+            <input type="hidden" id="pay-sale-id">
+            <div class="space-y-2 text-sm">
+                <p><span class="font-semibold text-gray-600">Cliente:</span> <span id="pay-client-name" class="font-bold text-gray-950"></span></p>
+                <p><span class="font-semibold text-gray-600">Deuda Restante:</span> <span id="pay-remaining" class="font-bold text-red-600"></span></p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Monto del Abono ($):</label>
+                <input type="number" id="pay-amount" step="0.01" placeholder="Ej. 10.00" 
+                    class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-500 font-semibold">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closePaymentModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold px-4 py-2 rounded-lg">Cancelar</button>
+                <button onclick="processPayment()" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-4 py-2 rounded-lg">Guardar Abono 💵</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -169,11 +209,17 @@
             const clientName = document.getElementById('client-name').value.trim();
             const clientPhone = document.getElementById('client-phone').value.trim();
             const desc = document.getElementById('sale-desc').value.trim();
+            const saleType = document.getElementById('sale-type').value;
             const currency = document.getElementById('sale-currency').value;
             const amount = parseFloat(document.getElementById('sale-amount').value);
 
             const now = new Date();
             const amountVes = currency === 'USD' ? amount * saleRateBcv : amount;
+            const totalUsd = currency === 'USD' ? amount : amount / saleRateBcv;
+
+            // Si es de contado, el abonado es igual al total. Si es a crédito, el abonado inicia en 0.
+            const paidUsd = saleType === 'contado' ? totalUsd : 0;
+            const status = saleType === 'contado' ? 'pagado' : 'pendiente';
 
             sales.unshift({
                 id: now.getTime(),
@@ -184,7 +230,9 @@
                 currency,
                 amount,
                 amountVes,
-                rateUsed: saleRateBcv
+                totalUsd,
+                paidUsd, // Cuánto ha pagado acumulado en USD
+                status // 'pendiente' o 'pagado'
             });
 
             document.getElementById('client-name').value = '';
@@ -192,6 +240,50 @@
             document.getElementById('sale-desc').value = '';
             document.getElementById('sale-amount').value = '';
 
+            saveAndRenderSales();
+        }
+
+        function openPaymentModal(id) {
+            const sale = sales.find(s => s.id === id);
+            if (!sale) return;
+
+            const remainingUsd = sale.totalUsd - sale.paidUsd;
+
+            document.getElementById('pay-sale-id').value = sale.id;
+            document.getElementById('pay-client-name').innerText = `${sale.clientName} (${sale.clientPhone})`;
+            document.getElementById('pay-remaining').innerText = `${remainingUsd.toFixed(2)} $`;
+            document.getElementById('pay-amount').value = remainingUsd.toFixed(2);
+
+            document.getElementById('modal-payment').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('modal-payment').classList.add('hidden');
+        }
+
+        function processPayment() {
+            const id = parseInt(document.getElementById('pay-sale-id').value);
+            const payAmount = parseFloat(document.getElementById('pay-amount').value) || 0;
+
+            if (payAmount <= 0) {
+                alert("Por favor ingresa un monto válido.");
+                return;
+            }
+
+            sales = sales.map(s => {
+                if (s.id === id) {
+                    const newPaidUsd = s.paidUsd + payAmount;
+                    const isFullyPaid = newPaidUsd >= s.totalUsd - 0.01; // Margen por decimales
+                    return {
+                        ...s,
+                        paidUsd: Math.min(newPaidUsd, s.totalUsd),
+                        status: isFullyPaid ? 'pagado' : 'pendiente'
+                    };
+                }
+                return s;
+            });
+
+            closePaymentModal();
             saveAndRenderSales();
         }
 
@@ -203,7 +295,7 @@
         }
 
         function clearSalesData() {
-            if (confirm("¿Estás seguro de borrar todo el historial de ventas?")) {
+            if (confirm("¿Estás seguro de borrar todo el historial de ventas y créditos?")) {
                 sales = [];
                 saveAndRenderSales();
             }
@@ -217,36 +309,58 @@
         function renderSales() {
             const tbody = document.getElementById('sales-history');
             const searchText = document.getElementById('search-sale').value.toLowerCase();
+            const filterStatus = document.getElementById('filter-status').value;
             tbody.innerHTML = '';
 
-            let filteredSales = sales.filter(s => 
-                s.clientName.toLowerCase().includes(searchText) || 
-                s.clientPhone.toLowerCase().includes(searchText) ||
-                s.desc.toLowerCase().includes(searchText)
-            );
+            let filteredSales = sales.filter(s => {
+                let matchesSearch = s.clientName.toLowerCase().includes(searchText) || 
+                                    s.clientPhone.toLowerCase().includes(searchText) ||
+                                    s.desc.toLowerCase().includes(searchText);
+                let matchesStatus = filterStatus === 'todos' || s.status === filterStatus;
+                return matchesSearch && matchesStatus;
+            });
 
             let totalVes = 0;
-            sales.forEach(s => totalVes += s.amountVes);
+            let totalPendingDebt = 0;
+
+            sales.forEach(s => {
+                totalVes += s.amountVes;
+                if (s.status === 'pendiente') {
+                    totalPendingDebt += (s.totalUsd - s.paidUsd);
+                }
+            });
 
             document.getElementById('sales-total-ves').innerText = `${totalVes.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs.`;
             document.getElementById('sales-total-usd').innerText = `${(totalVes / saleRateBcv).toFixed(2)} $`;
+            document.getElementById('total-pending-debt').innerText = `${totalPendingDebt.toFixed(2)} $`;
 
             if (filteredSales.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">No hay ventas registradas o coincidentes.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-400">No hay registros de ventas o créditos coincidentes.</td></tr>`;
                 return;
             }
 
             filteredSales.forEach(s => {
                 const row = document.createElement('tr');
+                const remainingUsd = s.totalUsd - s.paidUsd;
+                const isPaid = s.status === 'pagado';
+
+                let statusBadge = isPaid 
+                    ? `<span class="bg-green-100 text-green-700 px-2.5 py-1 text-xs font-bold rounded-full">✓ Al día / Pagado</span>` 
+                    : `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 text-xs font-bold rounded-full">⏳ Debe saldo</span>`;
+
                 row.innerHTML = `
                     <td class="p-3 text-xs text-gray-500">${s.dateStr}</td>
-                    <td class="p-3 font-semibold text-gray-800">${s.clientName}</td>
-                    <td class="p-3 text-xs font-mono text-gray-600">${s.clientPhone}</td>
+                    <td class="p-3 font-semibold text-gray-800">${s.clientName} <br><span class="text-xs font-mono text-gray-400">${s.clientPhone}</span></td>
                     <td class="p-3 text-gray-700">${s.desc}</td>
-                    <td class="p-3 font-bold text-green-600">${s.amount.toFixed(2)} ${s.currency === 'USD' ? '$' : 'Bs.'}</td>
-                    <td class="p-3 text-xs text-gray-500">${s.amountVes.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs.</td>
+                    <td class="p-3 font-bold text-gray-900">${s.amount.toFixed(2)} ${s.currency === 'USD' ? '$' : 'Bs.'} <br><span class="text-xs font-normal text-gray-400">(${s.amountVes.toLocaleString('es-VE', {maximumFractionDigits:2})} Bs)</span></td>
+                    <td class="p-3 text-green-600 font-semibold">${s.paidUsd.toFixed(2)} $</td>
+                    <td class="p-3 font-bold ${remainingUsd > 0 ? 'text-red-600' : 'text-gray-500'}">${remainingUsd.toFixed(2)} $</td>
+                    <td class="p-3 text-center">${statusBadge}</td>
                     <td class="p-3 text-center">
-                        <button onclick="deleteSale(${s.id})" title="Eliminar Venta" class="text-red-500 hover:text-red-700 font-bold">✕</button>
+                        <div class="flex items-center justify-center gap-2">
+                            ${!isPaid ? `<button onclick="openPaymentModal(${s.id})" title="Registrar Abono" class="bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold px-2.5 py-1 rounded-lg border border-blue-200">Abonar 💵</button>` : ''}
+                            <button onclick="deleteSale(${s.id})" title="Eliminar Registro" class="text-red-500 hover:text-red-700 font-bold">✕</button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(row);

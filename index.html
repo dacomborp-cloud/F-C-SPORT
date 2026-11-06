@@ -45,22 +45,22 @@
             <button onclick="clearSalesData()" class="text-xs text-red-500 hover:underline">Reiniciar Todo</button>
         </header>
 
-        <!-- Configuración de Tasa del Día -->
+        <!-- Configuración de Tasa Binance -->
         <section class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
-            <h2 class="text-sm font-semibold text-gray-700">Tasa BCV del Día (Bs / $):</h2>
-            <input type="number" id="sale-rate-bcv" step="0.01" value="873.87" oninput="saveRateAndRender()" 
+            <h2 class="text-sm font-semibold text-gray-700">Tasa Binance (Bs / $):</h2>
+            <input type="number" id="sale-rate-bcv" step="0.01" value="1004.93" oninput="saveRateAndRender()" 
                 class="w-32 border rounded-lg p-2 text-sm text-center focus:ring-2 focus:ring-green-500 outline-none font-bold bg-gray-50">
         </section>
 
         <!-- Resumen General -->
         <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-green-600 text-white p-5 rounded-xl shadow-md space-y-1">
-                <span class="text-xs uppercase tracking-wider opacity-80">Total Facturado (Bs.)</span>
-                <div class="text-2xl font-extrabold" id="sales-total-ves">0.00 Bs.</div>
+                <span class="text-xs uppercase tracking-wider opacity-80">Total Facturado ($)</span>
+                <div class="text-2xl font-extrabold" id="sales-total-usd">0.00 $</div>
             </div>
             <div class="bg-emerald-700 text-white p-5 rounded-xl shadow-md space-y-1">
-                <span class="text-xs uppercase tracking-wider opacity-80">Equivalente Total ($)</span>
-                <div class="text-2xl font-extrabold" id="sales-total-usd">0.00 $</div>
+                <span class="text-xs uppercase tracking-wider opacity-80">Equivalente Total (Bs.)</span>
+                <div class="text-2xl font-extrabold" id="sales-total-ves">0.00 Bs.</div>
             </div>
             <div class="bg-amber-600 text-white p-5 rounded-xl shadow-md space-y-1">
                 <span class="text-xs uppercase tracking-wider opacity-80">Total Por Cobrar (Deudas)</span>
@@ -195,12 +195,12 @@
         });
 
         let sales = JSON.parse(localStorage.getItem('ve_sales_data')) || [];
-        let saleRateBcv = parseFloat(localStorage.getItem('ve_sales_rate')) || 873.87;
-        document.getElementById('sale-rate-bcv').value = saleRateBcv;
+        let saleRateBinance = parseFloat(localStorage.getItem('ve_sales_rate')) || 1004.93;
+        document.getElementById('sale-rate-bcv').value = saleRateBinance;
 
         function saveRateAndRender() {
-            saleRateBcv = parseFloat(document.getElementById('sale-rate-bcv').value) || 1;
-            localStorage.setItem('ve_sales_rate', saleRateBcv);
+            saleRateBinance = parseFloat(document.getElementById('sale-rate-bcv').value) || 1;
+            localStorage.setItem('ve_sales_rate', saleRateBinance);
             renderSales();
         }
 
@@ -214,10 +214,10 @@
             const amount = parseFloat(document.getElementById('sale-amount').value);
 
             const now = new Date();
-            const amountVes = currency === 'USD' ? amount * saleRateBcv : amount;
-            const totalUsd = currency === 'USD' ? amount : amount / saleRateBcv;
+            // Convertir todo a USD para el total principal
+            const totalUsd = currency === 'USD' ? amount : amount / saleRateBinance;
+            const amountVes = currency === 'VES' ? amount : amount * saleRateBinance;
 
-            // Si es de contado, el abonado es igual al total. Si es a crédito, el abonado inicia en 0.
             const paidUsd = saleType === 'contado' ? totalUsd : 0;
             const status = saleType === 'contado' ? 'pagado' : 'pendiente';
 
@@ -231,8 +231,8 @@
                 amount,
                 amountVes,
                 totalUsd,
-                paidUsd, // Cuánto ha pagado acumulado en USD
-                status // 'pendiente' o 'pagado'
+                paidUsd,
+                status
             });
 
             document.getElementById('client-name').value = '';
@@ -273,7 +273,7 @@
             sales = sales.map(s => {
                 if (s.id === id) {
                     const newPaidUsd = s.paidUsd + payAmount;
-                    const isFullyPaid = newPaidUsd >= s.totalUsd - 0.01; // Margen por decimales
+                    const isFullyPaid = newPaidUsd >= s.totalUsd - 0.01;
                     return {
                         ...s,
                         paidUsd: Math.min(newPaidUsd, s.totalUsd),
@@ -320,18 +320,20 @@
                 return matchesSearch && matchesStatus;
             });
 
-            let totalVes = 0;
+            let totalUsd = 0;
             let totalPendingDebt = 0;
 
             sales.forEach(s => {
-                totalVes += s.amountVes;
+                totalUsd += s.totalUsd;
                 if (s.status === 'pendiente') {
                     totalPendingDebt += (s.totalUsd - s.paidUsd);
                 }
             });
 
-            document.getElementById('sales-total-ves').innerText = `${totalVes.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs.`;
-            document.getElementById('sales-total-usd').innerText = `${(totalVes / saleRateBcv).toFixed(2)} $`;
+            const totalVesEquiv = totalUsd * saleRateBinance;
+
+            document.getElementById('sales-total-usd').innerText = `${totalUsd.toFixed(2)} $`;
+            document.getElementById('sales-total-ves').innerText = `${totalVesEquiv.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs.`;
             document.getElementById('total-pending-debt').innerText = `${totalPendingDebt.toFixed(2)} $`;
 
             if (filteredSales.length === 0) {
